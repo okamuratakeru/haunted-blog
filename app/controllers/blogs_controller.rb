@@ -56,7 +56,7 @@ class BlogsController < ApplicationController
   end
 
   def require_premium
-    return unless params.dig(:blog, :random_eyecatch) == '1'
+    return unless ActiveModel::Type::Boolean.new.cast(params.dig(:blog, :random_eyecatch))
 
     head :bad_request unless current_user.premium?
   end
