@@ -12,7 +12,11 @@ class BlogsController < ApplicationController
 
   def show
     @blog = Blog.find(params[:id])
-    head :not_found if @blog.secret? && @blog.user != current_user
+    return unless @blog.secret?
+
+    return head :not_found if current_user.nil?
+
+    head :not_found if @blog.user != current_user
   end
 
   def new
