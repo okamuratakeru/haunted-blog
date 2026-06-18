@@ -4,7 +4,6 @@ class BlogsController < ApplicationController
   skip_before_action :authenticate_user!, only: %i[index show]
 
   before_action :set_my_blog, only: %i[edit update destroy]
-  before_action :require_premium, only: %i[create update]
 
   def index
     @blogs = Blog.search(params[:term]).published.default_order
@@ -50,13 +49,11 @@ class BlogsController < ApplicationController
     @blog = current_user.blogs.find(params[:id])
   end
 
-  def require_premium
-    return unless ActiveModel::Type::Boolean.new.cast(params.dig(:blog, :random_eyecatch))
-
-    head :bad_request unless current_user.premium?
-  end
-
   def blog_params
-    params.expect(blog: %i[title content secret random_eyecatch])
+    if current_user.premium?
+      params.expect(blog: %i[title content secret random_eyecatch])
+    else
+      params.expect(blog: %i[title content secret])
+    end
   end
 end
